@@ -1,6 +1,6 @@
 # llm-eval-harness-kit-demo-app
 
-**A merge gate for an LLM feature, running on an iPhone — and you can make it fail three different ways.**
+**A merge gate for an LLM feature, built as an iPhone app — and you can make it fail three different ways.**
 
 This is the runnable companion to
 [**llm-eval-harness-kit**](https://github.com/rajatslakhina/llm-eval-harness-kit).
@@ -18,7 +18,7 @@ Teams shipping LLM-backed features cannot write `XCTAssertEqual` against a model
 becomes a manual pre-release ritual (which dies on contact with a release train) or an
 LLM-as-judge suite that costs money and flakes on every PR.
 
-This demo shows the third option running on device: a **hermetic** suite that replays a committed
+This demo packages the third option as an iOS app: a **hermetic** suite that replays a committed
 transcript cache, scores it with deterministic rubrics, and — the part most eval tooling skips —
 **attributes** a regression to the person who caused it.
 
@@ -106,11 +106,19 @@ nothing.
 `swift build -v` and `swift test -v` both pass on a `macos-latest` GitHub Actions runner
 ([workflow](https://github.com/rajatslakhina/llm-eval-harness-kit/actions/workflows/ci.yml)),
 including an `EvalGateCITests` case that runs the eval gate itself and publishes its report to the
-job summary. Every rubric score, verdict and gate outcome quoted in the table above is asserted by
-those tests, not estimated. `Demo.xcodeproj` was checked for structural soundness (balanced
-delimiters, every referenced UUID defined, remote package reference and product dependencies wired
-into both `packageProductDependencies` and the Frameworks build phase), and `DemoApp.swift` was
-scanned for crash-prone patterns.
+job summary.
+
+**Every number in the table above is asserted by a test**, not estimated: the library's
+`EvalHarnessUITests` target pins these exact scenarios — global mean 0.9375 for the healthy run,
+0.8125 for both regressions, `refusal` and `tool-call` as the respective worst slices, the verdict
+kinds (`promptRegression`, `modelDrift` with both build strings, `quarantinedFlaky` for
+`summary-03`), the cost-only budget failure, and the zero-upstream-calls replay. Those tests use
+the package's **public** API only, so they also demonstrate it is consumable from outside.
+
+`Demo.xcodeproj` was checked for structural soundness (balanced delimiters, every referenced UUID
+defined, remote package reference and product dependencies wired into both
+`packageProductDependencies` and the Frameworks build phase), and `DemoApp.swift` was scanned for
+crash-prone patterns.
 
 **What was not verified.** This iOS app target has **not been compiled and has not been launched
 on a Simulator**, and no screenshots exist. The run was attempted during an unattended scheduled
