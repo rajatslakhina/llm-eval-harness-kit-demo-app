@@ -43,9 +43,25 @@ switched off within a month, and a gate nobody runs protects nothing.
 
 ## Screenshots
 
-**None yet — the app has not been launched on a Simulator.** Rather than ship a mockup or a
-description dressed up as evidence, this section stays empty until there is a real capture of the
-app running. See [Verification](#verification) for exactly what has and has not been executed.
+Captured from the app running on an **iPhone 17 Simulator (iOS 26.3)**, built from this project
+against the library resolved from GitHub at `eb5dd4c`.
+
+**The healthy baseline — prompt r1 on the June build.** Global mean 0.94, worst slice
+`summarisation` at 0.83, and the whole suite served for $0.0096.
+
+![Gate pass](Demo/Screenshots/01-gate-pass.jpg)
+
+**The headline claim, live.** Switch the prompt to r2 and the global mean is **0.81 — still above
+its 0.70 floor** — yet the gate is red, because the `refusal` slice collapsed to 0.50 and fell
+under its own stricter 0.80 floor. A gate that only checked the aggregate would have shipped this.
+
+![Prompt regression fails the gate](Demo/Screenshots/02-prompt-regression-gate-fail.jpg)
+
+**Attribution, not just detection.** `refusal-01` is labelled **prompt regression** — the prompt
+revision changed in this run, so this PR caused it — while `summary-03` comes back
+**flaky · quarantined** and is reported without blocking the merge.
+
+![Per-case verdicts](Demo/Screenshots/03-case-verdicts.jpg)
 
 ---
 
@@ -120,11 +136,18 @@ defined, remote package reference and product dependencies wired into both
 `packageProductDependencies` and the Frameworks build phase), and `DemoApp.swift` was scanned for
 crash-prone patterns.
 
-**What was not verified.** This iOS app target has **not been compiled and has not been launched
-on a Simulator**, and no screenshots exist. The run was attempted during an unattended scheduled
-build and could not be completed: automated control of Xcode and Simulator on the build machine
-was unavailable for the duration of the run. So treat "it builds and runs" as unproven here — the
-package it depends on is verified, the app wrapper around it is not.
+**The app was built and run.** `Demo.xcodeproj` was opened in Xcode 26.3, which resolved the
+remote package from GitHub at `eb5dd4c`, built the app, and installed and launched it on an
+**iPhone 17 Simulator running iOS 26.3**. Every screenshot above is a capture of that session —
+not a mockup, not a render. The suite was driven by hand through all three scenarios, and the
+numbers on screen match the values the tests assert to the digit: 0.94 for the baseline, 0.81 with
+`refusal` at 0.50 for the prompt regression, 8 upstream calls against 8 cached transcripts, and
+$0.0096 of simulated spend.
+
+**One caveat worth stating.** The first launch attempt was on an iPhone 17 Pro simulator that
+another process on the same machine was already driving with UI tests; it repeatedly stole the
+foreground. The run was moved to a separate iPhone 17 device to get clean isolation, which is what
+the screenshots show. Nothing about the app changed between the two attempts.
 
 ---
 
